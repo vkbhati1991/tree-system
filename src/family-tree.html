@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Complete Family Tree</title>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+
+    <style>
+        body {
+            background: #f2f2f2;
+        }
+
+        .hide {
+            visibility: hidden;
+        }
+
+
+
+        .bigger {
+            font-size: 20px;
+        }
+
+        image {
+            width: 40px;
+            height: 40px;
+        }
+
+        text {
+            cursor: pointer;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div id="familyTree"></div>
+    <script>
+
+
+        var data = [
+
+            {
+                "id": "2",
+                "parentId": "1",
+                "name": "ASingh",
+                "empCode": "20002",
+                "url": "xyz.com",
+                "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcR9u6TCHl0dJUiFHgK2VDGzEyE7vvPoSwq6jGl9JSsLK2dsJULr",
+                "desc": "hi i am a emp",
+                "spouse": "LSingh",
+                "spouseEmpCode": "20002",
+                "spouseImage": "https://pixinvent.com/materialize-material-design-admin-template/app-assets/images/user/12.jpg",
+                "other": null,
+                "toggle": false
+            },
+            {
+                "id": "3",
+                "parentId": "1",
+                "name": "VSingh",
+                "empCode": "20002",
+                "url": "xyz.com",
+                "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcR9u6TCHl0dJUiFHgK2VDGzEyE7vvPoSwq6jGl9JSsLK2dsJULr",
+                "desc": "hi i am a emp",
+                "spouse": "LSingh",
+                "spouseEmpCode": "20002",
+                "spouseImage": "https://pixinvent.com/materialize-material-design-admin-template/app-assets/images/user/12.jpg",
+                "other": {
+                    "icon": "+",
+                    "text": "other",
+                    "desc": []
+                },
+                "toggle": false
+            },
+            {
+                "id": "4",
+                "parentId": "3",
+                "name": "AySingh",
+                "empCode": "20002",
+                "url": "xyz.com",
+                "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcR9u6TCHl0dJUiFHgK2VDGzEyE7vvPoSwq6jGl9JSsLK2dsJULr",
+                "desc": "hi i am a emp",
+                "spouse": "",
+                "spouseEmpCode": "20002",
+                "spouseImage": "https://pixinvent.com/materialize-material-design-admin-template/app-assets/images/user/12.jpg",
+                "other": null,
+                "toggle": false
+            },
+            {
+                "id": "5",
+                "parentId": "3",
+                "name": "TanSingh",
+                "empCode": "20002",
+                "url": "xyz.com",
+                "image": "https://pixinvent.com/materialize-material-design-admin-template/app-assets/images/user/12.jpg",
+                "desc": "hi i am a emp",
+                "spouse": "",
+                "other": null,
+                "toggle": false
+            },
+            {
+                "id": "1",
+                "parentId": null,
+                "name": "JSingh",
+                "empCode": "20001",
+                "url": "xyz.com",
+                "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcR9u6TCHl0dJUiFHgK2VDGzEyE7vvPoSwq6jGl9JSsLK2dsJULr",
+                "desc": "hi i am a emp",
+                "spouse": "LSingh",
+                "spouseEmpCode": "20002",
+                "spouseImage": "https://pixinvent.com/materialize-material-design-admin-template/app-assets/images/user/12.jpg",
+                "other": null,
+                "toggle": false
+            }
+        ];
+        var tempdata = [...data];
+        var margin = [50, 50, 50, 50];
+        var height = 600;
+        var width = 900;
+        var root, i;
+        var nodeHeight = 50;
+        var nodeWidth = 100;
+        var halfNodeHeight = nodeHeight / 2;
+        var halfNodeWidth = nodeWidth / 2;
+        var rectStrokeColor = "#ccc";
+        var rectFillColor = "#fff";
+        var rectStrokeWidth = 1;
+        var linkStrokeColor = "#a9a9a9";
+        var linkStrokeWidth = 1;
+
+
+        var svg = d3.select("#familyTree").append("svg").attr("width", width).attr('height', height);
+
+
+
+        treeUpdate(data);
+        function treeUpdate(dataJson) {
+            var gContainer = svg.append("g").attr("transform", "translate(" + margin[1] + ", " + margin[2] + ")");
+
+            var dataStructure = d3.stratify().id(function (d) { return d.id }).parentId(function (d) { return d.parentId })(dataJson);
+
+            var treeStructure = d3.tree()
+                .separation(function (a, b) {
+                    return a.parent === b.parent ? 4 : 2
+                })
+                .size([650, 300]);
+
+            var information = treeStructure(dataStructure);
+
+            var connection1 = gContainer.selectAll("path").data(information.links());
+
+            connection1.enter()
+                .append("path")
+                .attr("fill", "none")
+                .attr("stroke", linkStrokeColor)
+                .attr("stroke-width", linkStrokeWidth)
+                .transition()
+                .duration(300)
+                .attr("d", function (d) {
+                    return `M${d.source.x}, ${d.source.y}h 65 v 50 H${d.target.x}, V${d.target.y}`;
+                });
+
+            var rootNodeEnter = gContainer.selectAll("g").data(information.descendants());
+            var rootNode = rootNodeEnter.enter().append("g")
+                .on("click", function (d) {
+                    gContainer.remove();
+                    var updatedJson = updateTree(d, information);
+                    treeUpdate(updatedJson);
+                });
+
+            rootNode.append("rect")
+                .attr("height", nodeHeight)
+                .attr("width", nodeWidth)
+                .attr("fill", rectFillColor)
+                .attr("stroke", rectStrokeColor)
+                .attr("stroke-width", rectStrokeWidth)
+                .attr("rx", 5)
+                .attr("ry", 5)
+                .attr("x", function (d) { return d.x - halfNodeWidth })
+                .attr("y", function (d) { return d.y - halfNodeHeight });
+
+            rootNode.append("defs")
+                .append("clipPath")
+                .attr("id", function (d) { return `root${d.data.id}` })
+                .append("circle")
+                .attr("cx", function (d) { return d.x - 25 })
+                .attr("cy", function (d) { return d.y })
+                .attr("r", 18)
+
+
+            rootNode.append("image")
+                .attr("href", function (d) { return d.data.image; })
+                .attr("x", function (d) { return d.x - 45 })
+                .attr("y", function (d) { return d.y - 20 })
+                .attr("width", "40px")
+                .attr("radius", "40px")
+                .attr("clip-path", function (d) { return `url(#root${d.data.id})` })
+                .attr("height", "40px");
+
+            rootNode.append("text")
+                .text(function (d) { return d.data.name.length > 6 ? `${d.data.name.substring(0, 6)}..` : d.data.name; })
+                .attr("x", function (d) { return d.x; })
+                .attr("y", function (d) { return d.y - 4; })
+                .attr("fill", "#00a99d")
+                .attr("font-size", "12px")
+                .attr("font-family", "arial")
+                .attr("font-weight", "600")
+                .classed("title", true);
+
+            rootNode.append("text")
+                .text(function (d) { return d.data.empCode })
+                .attr("x", function (d) { return d.x; })
+                .attr("y", function (d) { return d.y + 13; })
+                .attr("fill", "#777")
+                .attr("font-size", "10px")
+                .attr("font-family", "arial")
+                .classed("subtitle", true);
+
+
+            rootNode.transition().duration(300);
+
+
+            var spouseNode = rootNodeEnter.enter().append("g").classed("hide", function (d) {
+                return d.data.spouse ? false : true
+            });
+            //var spouseNode = rootNodeEnter.enter().append("g");
+            //var spouseRectangle = gContainer.append("g").selectAll("rect").data(information.descendants());
+            spouseNode.append("path")
+                .attr("fill", "none")
+                .attr("stroke", linkStrokeColor)
+                .attr("stroke-width", linkStrokeWidth)
+                .attr("d", function (d) {
+                    return `M${d.x + halfNodeWidth}, ${d.y}h 65`;
+                });
+            spouseNode.append("rect")
+                .attr("height", nodeHeight)
+                .attr("width", nodeWidth)
+                .attr("fill", rectFillColor)
+                .attr("stroke", rectStrokeColor)
+                .attr("stroke-width", rectStrokeWidth)
+                .attr("rx", 5)
+                .attr("ry", 5)
+                .attr("x", function (d) { return d.x + halfNodeWidth + 30 })
+                .attr("y", function (d) { return d.y - halfNodeHeight })
+
+            spouseNode.append("defs")
+                .append("clipPath")
+                .attr("id", function (d) { return `spoce${d.data.id}` })
+                .append("circle")
+                .attr("cx", function (d) { return d.x + halfNodeWidth + 55 })
+                .attr("cy", function (d) { return d.y })
+                .attr("r", 18)
+
+
+            spouseNode.append("image")
+                .attr("href", function (d) { return d.data.spouseImage; })
+                .attr("x", function (d) { return d.x + halfNodeWidth + 35 })
+                .attr("y", function (d) { return d.y - 20 })
+                .attr("width", "40px")
+                .attr("radius", "40px")
+                .attr("clip-path", function (d) { return `url(#spoce${d.data.id})` })
+                .attr("height", "40px");
+
+            spouseNode.append("text")
+                .text(function (d) { return d.data.spouse.length > 6 ? `${d.data.spouse.substring(0, 6)}..` : d.data.spouse; })
+                .attr("x", function (d) { return d.x + halfNodeWidth + 80; })
+                .attr("y", function (d) { return d.y - 4; })
+                .attr("fill", "#00a99d")
+                .attr("font-size", "12px")
+                .attr("font-family", "arial")
+                .attr("font-weight", "600")
+                .classed("title", true);
+
+            spouseNode.append("text")
+                .text(function (d) { return d.data.spouseEmpCode })
+                .attr("x", function (d) { return d.x + halfNodeWidth + 80; })
+                .attr("y", function (d) { return d.y + 13; })
+                .attr("fill", "#777")
+                .attr("font-size", "10px")
+                .attr("font-family", "arial")
+                .classed("subtitle", true);
+
+            var otherNode = rootNodeEnter.enter().append("g").classed("hide", function (d) {
+                return d.data.other ? false : true
+            });;
+            //var otherRectangle = gContainer.append("g").selectAll("rect").data(information.descendants());
+            otherNode.append("path")
+                .attr("fill", "none")
+                .attr("stroke", linkStrokeColor)
+                .attr("stroke-width", linkStrokeWidth)
+                .attr("d", function (d) {
+                    return `M${d.x - nodeHeight - 10}, ${d.y}h 10`;
+                });
+            otherNode.append("rect")
+                .attr("height", nodeHeight)
+                .attr("width", nodeHeight)
+                .attr("fill", rectFillColor)
+                .attr("stroke", rectStrokeColor)
+                .attr("stroke-width", rectStrokeWidth)
+                .attr("rx", 5)
+                .attr("ry", 5)
+                .attr("x", function (d) { return d.x - nodeWidth - 10 })
+                .attr("y", function (d) { return d.y - halfNodeHeight });
+
+            otherNode.append("text")
+                .text(function (d) { return d.data.other && d.data.other.icon })
+                .attr("x", function (d) { return d.x - nodeWidth + 5; })
+                .attr("y", function (d) { return d.y + 12; })
+                .attr("fill", "#00a99d")
+                .attr("font-size", "36px")
+                .attr("font-family", "arial")
+                .attr("font-weight", "600")
+                .classed("other", true);
+
+            otherNode.append("text")
+                .text(function (d) { return d.data.other && d.data.other.text })
+                .attr("x", function (d) { return d.x - nodeWidth + 4; })
+                .attr("y", function (d) { return d.y + 20; })
+                .attr("fill", "#00a99d")
+                .attr("font-size", "10px")
+                .attr("font-family", "arial")
+                .classed("othertitle", true);
+        }
+        var array = [];
+
+        function getremovedarray(d) {
+            if (d.children) {
+                d.children.map(item => getremovedarray(item));
+            }
+            array.push(d.id);
+        }
+
+        function updateTree(d) {
+            const isParent = data.find(f => f.parentId == d.id);
+
+            if (d.children && !d.data.toggle) {
+                getremovedarray(d);
+                const updatedjson = tempdata.filter(f => array.indexOf(f.id) == -1);
+                const item = Object.assign({}, d.data, { toggle: true });
+                tempdata = updatedjson.concat(item);
+                array = [];
+                return tempdata;
+            } else if (isParent || d.data.toggle) {
+                const updatedjson = data.filter(f => f.parentId == d.id);
+                tempdata = tempdata.filter(f => f.id != d.id);
+                const item = Object.assign({}, d.data, { toggle: false });
+                tempdata = tempdata.concat(updatedjson.concat(item));
+
+                return tempdata;
+            }
+
+            return tempdata;
+        }
+
+
+    </script>
+</body>
+
+</html>
