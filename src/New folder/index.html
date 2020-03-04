@@ -1,127 +1,367 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<style>
+
+.node circle {
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 3px;
+}
+
+.node text {
+  font: 12px sans-serif;
+}
+
+.link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 2px;
+}
+
+</style>
+
 <body>
-  <script src="https://d3js.org/d3.v3.js" charset="utf-8"></script>
-  <script>
 
-    var margin = { top: 100, right: 50, bottom: 100, left: 50 },
-      width = 900 - margin.left - margin.right,
-      height = 500 - margin.top - margin.bottom;
+<!-- load the d3.js library -->	
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script>
 
-    var tree = d3.layout.tree()
-      .separation(function (a, b) { return a.parent === b.parent ? 1 : 1.2; })
-      .children(function (d) { return d.parents; })
-      .size([width, height]);
+// var treeData =
+//   {
+//     "name": "Top Level",
+//     "children": [
+//       { 
+//         "name": "Level 2: A",
+//         "children": [
+//           { "name": "Son of A" },
+//           { "name": "Daughter of A" }
+//         ]
+//       },
+//       { "name": "Level 2: B" }
+//     ]
+//   };
 
-    var svg = d3.select("body")
-      .attr("bgcolor", "#2c2c2c")
-      .append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-      .append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  var treeData = [
+            {
+                "id": "1",
+                "parentId": null,
+                "name": "1JSingh",
+                "empCode": "20001",
+                "url": "xyz.com",
+                "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcR9u6TCHl0dJUiFHgK2VDGzEyE7vvPoSwq6jGl9JSsLK2dsJULr",
+                "desc": "hi i am a emp",
+                "spouse": "LSingh",
+                "spouseEmpCode": "20002",
+                "spouseImage": "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQHzkucWOorUVdVIRmf373jkmWjEmLGUxl32iX9QvmF7WLy8o9P",
+                "other": null,
+                "toggle": false
+            },
 
-    var nodes = tree.nodes(getData());
+            {
+                "id": "2",
+                "parentId": "1",
+                "name": "2ASingh",
+                "empCode": "20002",
+                "url": "xyz.com",
+                "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcR9u6TCHl0dJUiFHgK2VDGzEyE7vvPoSwq6jGl9JSsLK2dsJULr",
+                "desc": "hi i am a emp",
+                "spouse": "LSingh",
+                "spouseEmpCode": "20002",
+                "spouseImage": "https://pixinvent.com/materialize-material-design-admin-template/app-assets/images/user/12.jpg",
+                "other": null,
+                "toggle": false
+            },
+            {
+                "id": "3",
+                "parentId": "1",
+                "name": "3VSingh",
+                "empCode": "20002",
+                "url": "xyz.com",
+                "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcR9u6TCHl0dJUiFHgK2VDGzEyE7vvPoSwq6jGl9JSsLK2dsJULr",
+                "desc": "hi i am a emp",
+                "spouse": "LSingh",
+                "spouseEmpCode": "20002",
+                "spouseImage": "https://pixinvent.com/materialize-material-design-admin-template/app-assets/images/user/12.jpg",
+                "other": {
+                    "icon": "+",
+                    "text": "other",
+                    "desc": []
+                },
+                "toggle": false
+            },
+            
+            {
+                "id": "4",
+                "parentId": "3",
+                "name": "4AySingh",
+                "empCode": "20002",
+                "url": "xyz.com",
+                "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcR9u6TCHl0dJUiFHgK2VDGzEyE7vvPoSwq6jGl9JSsLK2dsJULr",
+                "desc": "hi i am a emp",
+                "spouse": "",
+                "spouseEmpCode": "20002",
+                "spouseImage": "https://pixinvent.com/materialize-material-design-admin-template/app-assets/images/user/12.jpg",
+                "other": null,
+                "toggle": false
+            },
+            {
+                "id": "5",
+                "parentId": "3",
+                "name": "5TanSingh",
+                "empCode": "20002",
+                "url": "xyz.com",
+                "image": "https://pixinvent.com/materialize-material-design-admin-template/app-assets/images/user/12.jpg",
+                "desc": "hi i am a emp",
+                "spouse": "",
+                "other": null,
+                "toggle": false
+            },
+            
+            {
+                "id": "6",
+                "parentId": "2",
+                "name": "6TanSingh",
+                "empCode": "20002",
+                "url": "xyz.com",
+                "image": "https://pixinvent.com/materialize-material-design-admin-template/app-assets/images/user/12.jpg",
+                "desc": "hi i am a emp",
+                "spouse": "",
+                "other": null,
+                "toggle": false
+            },
+            
+            {
+                "id": "7",
+                "parentId": "2",
+                "name": "7TanSingh",
+                "empCode": "20002",
+                "url": "xyz.com",
+                "image": "https://pixinvent.com/materialize-material-design-admin-template/app-assets/images/user/12.jpg",
+                "desc": "hi i am a emp",
+                "spouse": "",
+                "other": null,
+                "toggle": false
+            },
+            {
+                "id": "8",
+                "parentId": "1",
+                "name": "8anSingh",
+                "empCode": "20002",
+                "url": "xyz.com",
+                "image": "https://pixinvent.com/materialize-material-design-admin-template/app-assets/images/user/12.jpg",
+                "desc": "hi i am a emp",
+                "spouse": "",
+                "other": null,
+                "toggle": false
+            },
+            {
+                "id": "9",
+                "parentId": "8",
+                "name": "9TanSingh",
+                "empCode": "20002",
+                "url": "xyz.com",
+                "image": "https://pixinvent.com/materialize-material-design-admin-template/app-assets/images/user/12.jpg",
+                "desc": "hi i am a emp",
+                "spouse": "",
+                "other": null,
+                "toggle": false
+            },
+            {
+                "id": "10",
+                "parentId": "2",
+                "name": "10TanSingh",
+                "empCode": "20002",
+                "url": "xyz.com",
+                "image": "https://pixinvent.com/materialize-material-design-admin-template/app-assets/images/user/12.jpg",
+                "desc": "hi i am a emp",
+                "spouse": "",
+                "other": null,
+                "toggle": false
+            }
 
-    var node = svg.selectAll(".node")
-      .data(nodes)
-      .enter()
-      .append("g");
+        ];
 
-    node.append("rect")
-      .attr("width", 140)
-      .attr("height", 80)
-      .attr("fill", "tan")
-      .attr("x", function (d) { return d.x - 70; })
-      .attr("y", function (d) { return height - d.y - 40; });
+// Set the dimensions and margins of the diagram
+var margin = {top: 20, right: 90, bottom: 30, left: 90},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
 
-    node.append("text")
-      .attr("font-size", "16px")
-      .attr("fill", "black")
-      .attr("x", function (d) { return d.x; })
-      .attr("y", function (d) { return height - d.y - 15; })
-      .style("text-anchor", "middle")
-      .text(function (d) { return d.name; });
+// append the svg object to the body of the page
+// appends a 'group' element to 'svg'
+// moves the 'group' element to the top left margin
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.right + margin.left)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate("
+          + margin.left + "," + margin.top + ")");
 
-    node.append("text")
-      .attr("font-size", "12px")
-      .attr("x", function (d) { return d.x; })
-      .attr("y", function (d) { return 10 + height - d.y; })
-      .style("text-anchor", "middle")
-      .text(function (d) { return d.born + "–" + d.died; });
+var i = 0,
+    duration = 750,
+    root;
 
-    node.append("text")
-      .attr("font-size", "11px")
-      .attr("x", function (d) { return d.x; })
-      .attr("y", function (d) { return 28 + height - d.y; })
-      .style("text-anchor", "middle")
-      .text(function (d) { return d.location; });
+// declares a tree layout and assigns the size
+var treemap = d3.tree().size([height, width]);
 
-    var link = svg.selectAll(".link")
-      .data(tree.links(nodes))
-      .enter()
-      .insert("path", "g")
-      .attr("fill", "none")
-      .attr("stroke", "#000")
-      .attr("stroke", "#000")
-     // .attr("shape-rendering", "crispEdges")
-      .attr("d", connect);
+// Assigns parent, children, height, depth
+root = d3.stratify().id(function (d) { return d.id }).parentId(function (d) { return d.parentId })(treeData);;
+root.x0 = height / 2;
+root.y0 = 0;
 
-    function connect(d, i) {
-      return "M" + d.source.x + "," + (height - d.source.y)
-        + "V" + (height - (3 * d.source.y + 4 * d.target.y) / 7)
-        + "H" + d.target.x
-        + "V" + (height - d.target.y);
-    };
+// Collapse after the second level
 
 
-    function getData() {
-      return {
-        "name": "Clifford Shanks",
-        "born": 1862,
-        "died": 1906,
-        "location": "Petersburg, VA",
-        "parents": [
-          {
-            "name": "James Shanks",
-            "born": 1831,
-            "died": 1884,
-            "location": "Petersburg, VA",
-            "parents": [
-              {
-                "name": "Robert Shanks",
-                "born": 1781,
-                "died": 1871,
-                "location": "Ireland/Petersburg, VA"
-              },
-              {
-                "name": "Elizabeth Shanks",
-                "born": 1795,
-                "died": 1871,
-                "location": "Ireland/Petersburg, VA"
-              }
-            ]
-          },
-          {
-            "name": "Ann Emily Brown",
-            "born": 1826,
-            "died": 1866,
-            "location": "Brunswick/Petersburg, VA",
-            "parents": [
-              {
-                "name": "Henry Brown",
-                "born": 1792,
-                "died": 1845,
-                "location": "Montgomery, NC"
-              },
-              {
-                "name": "Sarah Houchins",
-                "born": 1793,
-                "died": 1882,
-                "location": "Montgomery, NC"
-              }
-            ]
-          }
-        ]
-      };
-    };
+update(root);
 
-  </script>
+// // Collapse the node and all it's children
+// function collapse(d) {
+//   if(d.children) {
+//     d._children = d.children
+//     d._children.forEach(collapse)
+//     d.children = null
+//   }
+// }
+
+function update(source) {
+
+  // Assigns the x and y position for the nodes
+  var treeData = treemap(root);
+
+  // Compute the new tree layout.
+  var nodes = treeData.descendants(),
+      links = treeData.descendants().slice(1);
+
+  // Normalize for fixed-depth.
+  nodes.forEach(function(d){ d.y = d.depth * 180});
+
+  // ****************** Nodes section ***************************
+
+  // Update the nodes...
+  var node = svg.selectAll('g.node')
+      .data(nodes, function(d) {return d.id || (d.id = ++i); });
+
+  // Enter any new modes at the parent's previous position.
+  var nodeEnter = node.enter().append('g')
+      .attr('class', 'node')
+      .attr("transform", function(d) {
+        return "translate(" + source.y0 + "," + source.x0 + ")";
+    })
+    .on('click', click);
+
+  // Add Circle for the nodes
+  nodeEnter.append('circle')
+      .attr('class', 'node')
+      .attr('r', 1e-6)
+      .style("fill", function(d) {
+          return d._children ? "lightsteelblue" : "#fff";
+      });
+
+  // Add labels for the nodes
+  nodeEnter.append('text')
+      .attr("dy", ".35em")
+      .attr("x", function(d) {
+          return d.children || d._children ? -13 : 13;
+      })
+      .attr("text-anchor", function(d) {
+          return d.children || d._children ? "end" : "start";
+      })
+      .text(function(d) { return d.data.name; });
+
+  // UPDATE
+  var nodeUpdate = nodeEnter.merge(node);
+
+  // Transition to the proper position for the node
+  nodeUpdate.transition()
+    .duration(duration)
+    .attr("transform", function(d) { 
+        return "translate(" + d.y + "," + d.x + ")";
+     });
+
+  // Update the node attributes and style
+  nodeUpdate.select('circle.node')
+    .attr('r', 10)
+    .style("fill", function(d) {
+        return d._children ? "lightsteelblue" : "#fff";
+    })
+    .attr('cursor', 'pointer');
+
+
+  // Remove any exiting nodes
+  var nodeExit = node.exit().transition()
+      .duration(duration)
+      .attr("transform", function(d) {
+          return "translate(" + source.y + "," + source.x + ")";
+      })
+      .remove();
+
+  // On exit reduce the node circles size to 0
+  nodeExit.select('circle')
+    .attr('r', 1e-6);
+
+  // On exit reduce the opacity of text labels
+  nodeExit.select('text')
+    .style('fill-opacity', 1e-6);
+
+  // ****************** links section ***************************
+
+  // Update the links...
+  var link = svg.selectAll('path.link')
+      .data(links, function(d) { return d.id; });
+
+  // Enter any new links at the parent's previous position.
+  var linkEnter = link.enter().insert('path', "g")
+      .attr("class", "link")
+      .attr('d', function(d){
+        var o = {x: source.x0, y: source.y0}
+        return diagonal(o, o)
+      });
+
+  // UPDATE
+  var linkUpdate = linkEnter.merge(link);
+
+  // Transition back to the parent element position
+  linkUpdate.transition()
+      .duration(duration)
+      .attr('d', function(d){ return diagonal(d, d.parent) });
+
+  // Remove any exiting links
+  var linkExit = link.exit().transition()
+      .duration(duration)
+      .attr('d', function(d) {
+        var o = {x: source.x, y: source.y}
+        return diagonal(o, o)
+      })
+      .remove();
+
+  // Store the old positions for transition.
+  nodes.forEach(function(d){
+    d.x0 = d.x;
+    d.y0 = d.y;
+  });
+
+  // Creates a curved (diagonal) path from parent to the child nodes
+  function diagonal(s, d) {
+
+    path = `M ${s.y} ${s.x}
+            C ${(s.y + d.y) / 2} ${s.x},
+              ${(s.y + d.y) / 2} ${d.x},
+              ${d.y} ${d.x}`
+
+    return path
+  }
+
+  // Toggle children on click.
+  function click(d) {
+    if (d.children) {
+        d._children = d.children;
+        d.children = null;
+      } else {
+        d.children = d._children;
+        d._children = null;
+      }
+    update(d);
+  }
+}
+
+</script>
+</body>

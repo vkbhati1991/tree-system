@@ -228,6 +228,7 @@ function update(source) {
     .style("fill-opacity", 1);
 
   // Transition exiting nodes to the parent's new position.
+  console.log(node);
   var nodeExit = node.exit().transition()
     .duration(duration)
     .attr("transform", function (d) { return "translate(" + source.x + "," + source.y + ")"; })
