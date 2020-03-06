@@ -1,0 +1,661 @@
+<html>
+
+<body>
+
+    <svg id='viz'></svg>
+
+</body>
+
+<script src='https://d3js.org/d3.v5.min.js'></script>
+<script>
+
+
+
+    var root = {
+        "nodes": [
+            {
+                "nodeId": 1,
+                "label": "San Miguel Corp",
+                "type": "round",
+                "color": "#1d9180",
+                "colorLink": "blue",
+                "image": "./group.png",
+                "relation": "Group of Companies",
+                "per": "100% (Share)",
+                "active": "Group"
+            },
+            {
+                "nodeId": 2,
+                "label": "San Miguel Food & Bevrage Inc.",
+                "type": "round",
+                "color": "#1d9180",
+                "colorLink": "blue",
+                "image": "./account.png",
+                "relation": "Group of Companies",
+                "per": "100% (Share)",
+                "active": "Customer"
+            },
+            {
+                "nodeId": 3,
+                "label": "San Miguel Brewery Inc.",
+                "type": "square",
+                "color": "#495da4",
+                "colorLink": "blue",
+                "image": "./account.png",
+                "relation": "Group of Companies",
+                "per": "100% (Share)",
+                "active": "Customer"
+            },
+            {
+                "nodeId": 4,
+                "label": "Ginebra San Miguel Inc.",
+                "type": "square",
+                "color": "#495da4",
+                "colorLink": "blue",
+                "image": "./account.png",
+                "relation": "Group of Companies",
+                "per": "100% (Share)",
+                "active": "Customer"
+            },
+            {
+                "nodeId": 5,
+                "label": "SMPFC Operating Entities",
+                "type": "square",
+                "color": "#495da4",
+                "colorLink": "blue",
+                "image": "./account.png",
+                "relation": "Group of Companies",
+                "per": "100% (Share)",
+                "active": "Customer"
+            },
+            {
+                "nodeId": 6,
+                "label": "Petron",
+                "type": "round",
+                "color": "#1d9180",
+                "colorLink": "blue",
+                "image": "./account.png",
+                "relation": "Joint Venture",
+                "per": "19% (Share)",
+                "active": "Prospect"
+            },
+            {
+                "nodeId": 7,
+                "label": "SEA Refinery Corporation",
+                "type": "round",
+                "color": "#1d9180",
+                "colorLink": "blue",
+                "image": "./group.png",
+                "relation": "Joint Venture",
+                "per": "51% (Share)",
+                "active": "Prospect"
+            },
+            {
+                "nodeId": 8,
+                "label": "Petrogen Insurance Corp",
+                "type": "square",
+                "color": "#ff9800",
+                "colorLink": "blue",
+                "image": "./account.png",
+                "relation": "Group of Companies",
+                "per": "100% (Share)",
+                "active": "Customer"
+            },
+            {
+                "nodeId": 9,
+                "label": "Petron Global Limited",
+                "type": "square",
+                "color": "#ff9800",
+                "colorLink": "blue",
+                "image": "./account.png",
+                "relation": "Group of Companies",
+                "per": "100% (Share)",
+                "active": "Customer"
+            },
+            {
+                "nodeId": 10,
+                "label": "Petron Finance",
+                "type": "square",
+                "color": "#ff9800",
+                "colorLink": "blue",
+                "image": "./account.png",
+                "relation": "Group of Companies",
+                "per": "100% (Share)",
+                "active": "Customer"
+            },
+            {
+                "nodeId": 11,
+                "label": "Petron Freeport Corp",
+                "type": "square",
+                "color": "#ff9800",
+                "colorLink": "blue",
+                "image": "./account.png",
+                "relation": "Group of Companies",
+                "per": "100% (Share)",
+                "active": "Customer"
+            },
+            {
+                "nodeId": 12,
+                "label": "Overseas Ventures Insurance Corp",
+                "type": "square",
+                "color": "#ff9800",
+                "colorLink": "blue",
+                "image": "./account.png",
+                "relation": "Group of Companies",
+                "per": "100% (Share)",
+                "active": "Customer"
+            },
+            {
+                "nodeId": 13,
+                "label": "Petron Marketing Corp",
+                "type": "square",
+                "color": "#ff9800",
+                "colorLink": "blue",
+                "image": "./account.png",
+                "relation": "Group of Companies",
+                "per": "100% (Share)",
+                "active": "Customer"
+            },
+            {
+                "nodeId": 14,
+                "label": "Petron Singapore Pte.Ltd",
+                "type": "square",
+                "color": "#ff9800",
+                "colorLink": "blue",
+                "image": "./account.png",
+                "relation": "Group of Companies",
+                "per": "100% (Share)",
+                "active": "Prospect"
+            },
+            {
+                "nodeId": 15,
+                "label": "Petron Oil & Gas Mauritius Ltd",
+                "type": "round",
+                "color": "#ff9800",
+                "colorLink": "blue",
+                "image": "./account.png",
+                "relation": "Group of Companies",
+                "per": "100% (Share)",
+                "active": "Prospect"
+            },
+            {
+                "nodeId": 16,
+                "label": "Petron Oil & Gas International Sdn.Bhd",
+                "type": "square",
+                "color": "#80898e",
+                "colorLink": "blue",
+                "image": "./account.png",
+                "relation": "Group of Companies",
+                "per": "100% (Share)",
+                "active": "Prospect"
+            },
+            {
+                "nodeId": 17,
+                "label": "Pilipinas Shell ",
+                "type": "square",
+                "color": "#03a9f4",
+                "colorLink": "blue",
+                "image": "./group.png",
+                "relation": "Joint Venture",
+                "per": "40% (Share)",
+                "active": "Customer"
+            },
+            {
+                "nodeId": 18,
+                "label": "Pandacan Depot Services Inc ",
+                "type": "round",
+                "color": "#03a9f4",
+                "colorLink": "blue",
+                "image": "./account.png",
+                "relation": "Joint Venture",
+                "per": "33% (Share)",
+                "active": "Customer"
+            },
+            {
+                "nodeId": 19,
+                "label": "Eduardo M. Cojuangco, Jr.",
+                "type": "square",
+                "color": "#199982",
+                "colorLink": "blue",
+                "image": "./contact.png",
+                "relation": "CEO",
+                "per": "N/A",
+                "active": "Prospect"
+            },
+            {
+                "nodeId": 20,
+                "label": "Ramon S. Ang ",
+                "type": "square",
+                "color": "#199982",
+                "colorLink": "blue",
+                "image": "./contact.png",
+                "relation": "COO",
+                "per": "N/A",
+                "active": "Customer"
+            },
+            {
+                "nodeId": 21,
+                "label": "Ferdinand K. Constantino ",
+                "type": "square",
+                "color": "#199982",
+                "colorLink": "blue",
+                "image": "./contact.png",
+                "relation": "CFO",
+                "per": "N/A",
+                "active": "Customer"
+            },
+            {
+                 "nodeId": 22,
+                "label": "Mary S. ",
+                "type": "square",
+                "color": "#199982",
+                "colorLink": "blue",
+                "image": "./contact.png",
+                "relation": "VP",
+                "per": "N/A",
+                "active": "Customer"
+            }
+
+
+        ],
+        "links": [
+            {
+                "source": 1,
+                "target": 2,
+                "colorLink": "#199982",
+            },
+            {
+                "source": 1,
+                "target": 19,
+                "colorLink": "#199982",
+            },
+            {
+                "source": 1,
+                "target": 20,
+                "colorLink": "#199982",
+            },
+            {
+                "source": 1,
+                "target": 21,
+                "colorLink": "#199982",
+            },
+            {
+                "source": 1,
+                "target": 22,
+                "colorLink": "#199982",
+            },
+            {
+                "source": 2,
+                "target": 3,
+                "colorLink": "#495da4",
+            },
+            {
+                "source": 2,
+                "target": 4,
+                "colorLink": "#495da4",
+            },
+            {
+                "source": 2,
+                "target": 5,
+                "colorLink": "#495da4",
+            },
+            {
+                "source": 1,
+                "target": 6,
+                "colorLink": "#1d9180",
+            },
+            {
+                "source": 1,
+                "target": 7,
+                "colorLink": "#1d9180",
+            },
+            {
+                "source": 6,
+                "target": 7,
+                "colorLink": "#1d9180",
+            },
+            {
+                "source": 6,
+                "target": 8,
+                "colorLink": "#ff9800",
+            },
+            {
+                "source": 6,
+                "target": 9,
+                "colorLink": "#ff9800",
+            },
+            {
+                "source": 6,
+                "target": 10,
+                "colorLink": "#ff9800",
+            },
+            {
+                "source": 6,
+                "target": 11,
+                "colorLink": "#ff9800",
+            },
+            {
+                "source": 6,
+                "target": 12,
+                "colorLink": "#ff9800",
+            },
+            {
+                "source": 6,
+                "target": 13,
+                "colorLink": "#ff9800",
+            },
+            {
+                "source": 6,
+                "target": 14,
+                "colorLink": "#ff9800",
+            },
+            {
+                "source": 6,
+                "target": 15,
+                "colorLink": "#ff9800",
+            },
+            {
+                "source": 15,
+                "target": 16,
+                "colorLink": "#80898e",
+            },
+            {
+                "source": 17,
+                "target": 18,
+                "colorLink": "#03a9f4",
+            },
+            {
+                "source": 6,
+                "target": 18,
+                "colorLink": "#03a9f4",
+            }
+        ]
+    }
+    var width = window.innerWidth - 100;
+    var height = window.innerHeight - 20;
+    var color = d3.scaleOrdinal(d3.schemeCategory10);
+
+    //d3.json("./miserables.json").then(function (graph) {
+
+    const graph = root;
+    var label = {
+        'nodes': [],
+        'links': []
+    };
+
+    graph.nodes.forEach(function (d, i) {
+        label.nodes.push({ node: d });
+        label.nodes.push({ node: d });
+        label.links.push({
+            source: i * 2,
+            target: i * 2 + 1
+        });
+    });
+
+
+
+    var labelLayout = d3.forceSimulation(label.nodes)
+        .force("charge", d3.forceManyBody().strength(-10))
+        .force("link", d3.forceLink(label.links).distance(0).strength(2));
+
+    var graphLayout = d3.forceSimulation(graph.nodes)
+        .force("charge", d3.forceManyBody().strength(-8000))
+        .force("center", d3.forceCenter(width / 2, height / 2))
+        .force("x", d3.forceX(width / 2).strength(1))
+        .force("y", d3.forceY(height / 2).strength(1))
+        .force("link", d3.forceLink(graph.links).id(function (d) { return d.nodeId; }).distance(40).strength(1))
+        .on("tick", ticked);
+
+    var adjlist = [];
+
+    graph.links.forEach(function (d) {
+        adjlist[d.source.index + "-" + d.target.index] = true;
+        adjlist[d.target.index + "-" + d.source.index] = true;
+    });
+
+    function neigh(a, b) {
+        return a == b || adjlist[a + "-" + b];
+    }
+
+
+    var svg = d3.select("#viz").attr("width", width).attr("height", height);
+    var container = svg.append("g");
+
+    svg.call(
+        d3.zoom()
+            .scaleExtent([.1, 4])
+            .on("zoom", function () { container.attr("transform", d3.event.transform); })
+    );
+
+    function getSize(string) {
+        if (string && string.length == 0) {
+            return 20;
+        }
+
+        return string.length * 11
+    }
+
+    var path = container.append("g").attr("class", "paths")
+        .selectAll("path")
+        .data(graph.links)
+        .enter()
+        .append("path")
+        .attr("fill", "none")
+        .attr("stroke-width", 1)
+        .attr("marker-end", "url(#arrowhead)")
+        .attr("stroke", function (d) { return d.colorLink })
+        .attr("d", function (d) {
+            return "M" + d.source.x + "," + d.source.y + " C " +
+                d.source.x + "," + (d.source.y + d.target.y) / 2 + " " +
+                d.target.x + "," + (d.source.y + d.target.y) / 2 + " " +
+                d.target.x + "," + d.target.y;
+        });
+
+
+
+    var node = container.append("g").attr("class", "nodes")
+        .selectAll("rect")
+        .data(graph.nodes)
+        .enter()
+        .append("rect")
+        .attr("height", function (d) { return d.type == "round" ? 44 : 40 })
+        .attr("width", function (d) { return d.type == "round" ? 44 : 40 })
+        .attr("x", function (d) { return d.type == "round" ? -22 : -20 })
+        .attr("y", function (d) { return d.type == "round" ? -22 : -20 })
+        .attr("rx", function (d) { return d.type == "round" ? 44 : 4 })
+        .attr("ry", function (d) { return d.type == "round" ? 44 : 4 })
+        .attr("fill", function (d) { return d.color; });
+
+    var image = container.append("g").attr("class", "image")
+        .selectAll("image")
+        .data(graph.nodes)
+        .enter()
+        .append("image")
+        .attr("xlink:href", function (d) { return d.image })
+        .attr("x", function (d) { return d.x - 15 })
+        .attr("y", function (d) { return d.y - 15 })
+        .attr("height", 30)
+        .attr("width", 30)
+        .attr("radius", "36px");
+
+    image.on("mouseover", focus).on("mouseout", unfocus);
+    node.on("mouseover", focus).on("mouseout", unfocus);
+
+
+    node.call(
+        d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended)
+    );
+
+    var labelNode = container.append("g").attr("class", "labelNodes")
+        .selectAll("text")
+        .data(label.nodes)
+        .enter()
+        .append("text")
+        .attr("x", function (d) { return d.node.label.length > 16 ? -50 : -20 })
+        .attr("y", 40)
+        .text(function (d, i) { return i % 2 == 0 ? "" : d.node.label; })
+        .style("fill", "#000")
+        .style("font-family", "Arial")
+        .style("font-size", 11)
+        .style("font-wight", "bold")
+        .style("pointer-events", "none"); // to prevent mouseover/drag capture
+
+    node.on("mouseover", focus).on("mouseout", unfocus);
+
+    //Create Tooltip
+
+    var tooltip = container.append("g").attr("class", "tooltip")
+        .selectAll("g")
+        .data(graph.nodes)
+        .enter()
+        .append("g")
+        .attr("display", "none");
+
+    var tooltipNode = tooltip.append("rect")
+        .attr("height", 60)
+        .attr("width", 140)
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("rx", 5)
+        .attr("ry", 5)
+        .attr("fill", "white")
+        .attr("stroke", function (d) { return d.color })
+        .attr("stroke-width", "1");
+
+    tooltip.append("text")
+        .text(function (d) { return d.relation })
+        .attr("font-family", "arial")
+        .attr("fill", function (d) { return d.color })
+        .attr("x", 8)
+        .attr("y", 16)
+        .attr("font-size", "12px");
+
+    tooltip.append("text")
+        .text(function (d) { return d.per })
+        .attr("font-family", "arial")
+        .attr("fill", function (d) { return d.color })
+        .attr("x", 8)
+        .attr("y", 34)
+        .attr("font-size", "12px")
+
+    tooltip.append("text")
+        .text(function (d) { return d.active })
+        .attr("font-family", "arial")
+        .attr("fill", function (d) { return d.color })
+        .attr("x", 8)
+        .attr("y", 50)
+        .attr("font-size", "12px")
+
+    function ticked() {
+
+        node.call(updateNode);
+        //link.call(updateLink);
+        path.call(updatePath);
+        image.call(updateImage);
+        tooltip.call(updateTooltip)
+
+        labelLayout.alphaTarget(0.3).restart();
+        labelNode.each(function (d, i) {
+            if (i % 2 == 0) {
+                d.x = d.node.x;
+                d.y = d.node.y;
+            } else {
+                var b = this.getBBox();
+
+                var diffX = d.x - d.node.x;
+                var diffY = d.y - d.node.y;
+
+                var dist = Math.sqrt(diffX * diffX + diffY * diffY);
+
+                var shiftX = b.width * (diffX - dist) / (dist * 2);
+                shiftX = Math.max(-b.width, Math.min(0, shiftX));
+                var shiftY = 16;
+                this.setAttribute("transform", "translate(" + shiftX + "," + shiftY + ")");
+            }
+        });
+        labelNode.call(updateNode);
+
+    }
+
+    function fixna(x) {
+        if (isFinite(x)) return x;
+        return 0;
+    }
+
+    function focus(d) {
+        var index = d3.select(d3.event.target).datum().index;
+        node.style("opacity", function (o) {
+            return neigh(index, o.index) ? 1 : 0.1;
+        });
+        labelNode.attr("display", function (o) {
+            return neigh(index, o.node.index) ? "block" : "none";
+        });
+        path.style("opacity", function (o) {
+            return o.source.index == index || o.target.index == index ? 1 : 0.1;
+        });
+        tooltip.attr("display", function (o) {
+            return d.nodeId == o.nodeId ? "block" : "none";
+        });
+        console.log(d);
+    }
+
+    function unfocus() {
+        labelNode.attr("display", "block");
+        node.style("opacity", 1);
+        path.style("opacity", 1);
+        tooltip.attr("display", "none");
+    }
+
+    function updatePath(pathLine) {
+        path.attr("d", function (d) {
+            return "M" + d.source.x + "," + d.source.y + " C " +
+                d.source.x + "," + (d.source.y + d.target.y) / 2 + " " +
+                d.target.x + "," + (d.source.y + d.target.y) / 2 + " " +
+                d.target.x + "," + d.target.y;
+        });
+    }
+
+    function updateNode(node) {
+        node.attr("transform", function (d) {
+            return "translate(" + fixna(d.x) + "," + fixna(d.y) + ")";
+        });
+    }
+
+    function updateTooltip(node) {
+        tooltip.attr("transform", function (d) {
+            return "translate(" + fixna(d.x + 30) + "," + fixna(d.y - 30) + ")";
+        });
+    }
+
+    function updateImage(node) {
+
+        image.attr("x", function (d) { return d.x - 15 })
+            .attr("y", function (d) { return d.y - 15 })
+    }
+
+    function dragstarted(d) {
+        d3.event.sourceEvent.stopPropagation();
+        if (!d3.event.active) graphLayout.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+    }
+
+    function dragged(d) {
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+    }
+
+    function dragended(d) {
+        if (!d3.event.active) graphLayout.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
+    }
+
+
+
+</script>
+
+</html>

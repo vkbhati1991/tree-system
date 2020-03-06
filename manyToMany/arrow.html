@@ -1,0 +1,869 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+
+<head profile="http://www.w3.org/2005/10/profile">
+    <title>Graph</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="Description" content="This page shows a graph." />
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="expires" content="-l" />
+
+    <script type="text/javascript" src="https://mbostock.github.com/d3/d3.js?2.4.5"></script>
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+
+    <script type="text/javascript">
+        d3.select(self.frameElement).style("height", "1000px");
+        d3.select(self.frameElement).style("width", "1000px");
+
+        var focalNodeID = "1";
+
+        var nodeSet = [
+
+            {type: 'Alert',  name: '1', id:  '1'                ,fixed: true, x: 0, y: 0 ,
+                description: 'Node 1 serves as the center.'},
+            {type: 'Good',  name: '2', id:  '2'                 ,fixed: true, x: 350, y: -200 ,
+                description: 'Node 2 is for other things. '},
+            {type: 'Good',  name: '3', id:  '3'               	,fixed: true, x: 150, y: -300 ,
+                description: 'Node 3 is old.'},
+            {type: 'Bad',  name: '4', id:  '4'                  ,fixed: false, x: 0, y: 300  ,
+                description: 'Node 4 is new'},
+            {type: 'Bad',  name: '5', id:  '5'                  ,fixed: false, x: 100, y: -200 ,
+                description: 'Node 5 is very much used.'},
+            
+      ];
+
+      var linkSet = [
+        {sourceId: '1', targetId: '2', linkName: '.txt'},
+        {sourceId: '2', targetId: '1', linkName: ''},
+
+        {sourceId: '2', targetId: '3', linkName: '.txt'}, 
+
+        {sourceId: '4', targetId: '5', linkName: 'ODBC'},
+
+        {sourceId: '5', targetId: '2', linkName: 'XML'}, 
+        {sourceId: '2', targetId: '5', linkName: ''},
+
+        {sourceId: '4', targetId: '3', linkName: 'Webservice'},
+
+        {sourceId: '3', targetId: '1', linkName: 'JDBC'},
+
+
+      ];
+
+
+
+        function drawCluster(drawingName, focalNode, nodeSet, linkSet, selectString, colors) {
+
+            // drawingName => A unique drawing identifier that has no spaces, no "." and no "#" characters.
+            // focalNode => Primary Node of Context.
+            // nodeSet => Set of nodes and their relevant data.
+            // linkSet => Set of links and their relevant data.
+            // selectString => String that allows you to pass in
+            //           a D3 select string.
+            // colors => String to set color scale.  Values can be...
+            //           => "colorScale10"
+            //           => "colorScale20"
+            //           => "colorScale20b"
+            //           => "colorScale20c"
+            // margin => Integer margin offset value.
+            // outerRadius => Integer outer radius value.
+            // innerRadius => Integer inner radius value.
+            // sortArcs => Controls sorting of Arcs by value.
+            //              0 = No Sort.  Maintain original order.
+            //              1 = Sort by arc value size.
+
+            // Color Scale Handling...
+            var colorScale = d3.scale.category20c();
+            switch (colors) {
+                case "colorScale10":
+                    colorScale = d3.scale.category10();
+                    break;
+                case "colorScale20":
+                    colorScale = d3.scale.category20();
+                    break;
+                case "colorScale20b":
+                    colorScale = d3.scale.category20b();
+                    break;
+                case "colorScale20c":
+                    colorScale = d3.scale.category20c();
+                    break;
+                default:
+                    colorScale = d3.scale.category20c();
+            };
+
+            var width = 1800;
+            var height = 1200;
+            var centerNodeSize = 15;
+            var nodeSize = 10;
+
+            //FONT SIZES
+            var nodeFontSize = 20;
+            var connectionFontSize = 14;
+            var legendFontSize = 14;
+
+            var color_hash = [];
+
+            var typeMouseOver = function() {
+                var thisObject = d3.select(this);
+                var typeValue = thisObject.attr("type_value");
+                var strippedTypeValue = typeValue.replace(/ /g, "_");
+
+                var legendBulletSelector = "." + "legendBullet-" + strippedTypeValue;
+                var selectedBullet = d3.selectAll(legendBulletSelector);
+                //document.writeln(legendBulletSelector);
+                selectedBullet.style("fill", "Maroon");
+                selectedBullet.attr("r", 1.2 * 6);
+
+                var legendTextSelector = "." + "legendText-" + strippedTypeValue;
+                var selectedLegendText = d3.selectAll(legendTextSelector);
+                //document.writeln(legendBulletSelector);
+                selectedLegendText.style("font", "bold "+ legendFontSize +"px Arial")
+                selectedLegendText.style("fill", "Maroon");
+
+                var nodeTextSelector = "." + "nodeText-" + strippedTypeValue;
+                var selectedNodeText = d3.selectAll(nodeTextSelector);
+                //document.writeln(pie3SliceSelector);
+                selectedNodeText.style("font", "bold "+ (nodeFontSize*1.2) +"px Arial")
+                selectedNodeText.style("fill", "Maroon");
+
+                var nodeCircleSelector = "." + "nodeCircle-" + strippedTypeValue;
+                var selectedCircle = d3.selectAll(nodeCircleSelector);
+                //document.writeln(nodeCircleSelector);
+                selectedCircle.style("fill", "Maroon");
+                selectedCircle.style("stroke", "Maroon");
+                selectedCircle.attr("r", 1.2 * nodeSize);
+
+                var focalNodeCircleSelector = "." + "focalNodeCircle";
+                var selectedFocalNodeCircle = d3.selectAll(focalNodeCircleSelector);
+                //document.writeln(focalNodeCircleSelector);
+                var focalNodeType = selectedFocalNodeCircle.attr("type_value");
+                if (typeValue == focalNodeType) {
+                    selectedFocalNodeCircle.style("stroke", "Maroon");
+                    selectedFocalNodeCircle.style("fill", "White");
+                };
+
+                var focalNodeTextSelector = "." + "focalNodeText";
+                var selectedFocalNodeText = d3.selectAll(focalNodeTextSelector);
+                var focalNodeTextType = selectedFocalNodeText.attr("type_value");
+                //document.writeln(pie3SliceSelector);
+                if (typeValue == focalNodeTextType) {
+                    selectedFocalNodeText.style("fill", "Maroon");
+                    selectedFocalNodeText.style("font", "bold "+ (nodeFontSize+2) +"px Arial")
+                };
+
+            };
+
+            var typeMouseOut = function() {
+
+                var thisObject = d3.select(this);
+                var typeValue = thisObject.attr("type_value");
+                var colorValue = thisObject.attr("color_value");
+                var strippedTypeValue = typeValue.replace(/ /g, "_");
+
+                var legendBulletSelector = "." + "legendBullet-" + strippedTypeValue;
+                var selectedBullet = d3.selectAll(legendBulletSelector);
+                //document.writeln(legendBulletSelector);
+                selectedBullet.style("fill", colorValue);
+                selectedBullet.attr("r", 6);
+
+                var legendTextSelector = "." + "legendText-" + strippedTypeValue;
+                var selectedLegendText = d3.selectAll(legendTextSelector);
+                //document.writeln(legendBulletSelector);
+                selectedLegendText.style("font", "normal "+legendFontSize+"px Arial")
+                selectedLegendText.style("fill", "Black");
+
+                var nodeTextSelector = "." + "nodeText-" + strippedTypeValue;
+                var selectedNodeText = d3.selectAll(nodeTextSelector);
+                //document.writeln(pie3SliceSelector);
+                selectedNodeText.style("font", "normal "+ (nodeFontSize+2) +"px Arial")
+                selectedNodeText.style("fill", "Blue");
+
+                var nodeCircleSelector = "." + "nodeCircle-" + strippedTypeValue;
+                var selectedCircle = d3.selectAll(nodeCircleSelector);
+                //document.writeln(nodeCircleSelector);
+                selectedCircle.style("fill", "White");
+                selectedCircle.style("stroke", colorValue);
+                selectedCircle.attr("r", nodeSize);
+
+                var focalNodeCircleSelector = "." + "focalNodeCircle";
+                var selectedFocalNodeCircle = d3.selectAll(focalNodeCircleSelector);
+                //document.writeln(focalNodeCircleSelector);
+                var focalNodeType = selectedFocalNodeCircle.attr("type_value");
+                if (typeValue == focalNodeType) {
+                    selectedFocalNodeCircle.style("stroke", colorValue);
+                    selectedFocalNodeCircle.style("fill", "White");
+                };
+
+                var focalNodeTextSelector = "." + "focalNodeText";
+                var selectedFocalNodeText = d3.selectAll(focalNodeTextSelector);
+                //document.writeln(pie3SliceSelector);
+                selectedFocalNodeText.style("fill", "Blue");
+                selectedFocalNodeText.style("font", "normal "+ nodeFontSize +"px Arial")
+
+            };
+
+            var nodeMouseOver = function() {
+                var thisObject = d3.select(this);
+                var typeValue = thisObject.attr("type_value");
+                var colorValue = thisObject.attr("color_value");
+                var strippedTypeValue = typeValue.replace(/ /g, "_");
+
+                d3.select(this).select("circle").transition()
+                    .duration(250)
+                    .attr("r", function(d, i) {
+                        if (d.id == focalNodeID) {
+                            return 65;
+                        } else {
+                            return 15;
+                        }
+                    });
+                d3.select(this).select("text").transition()
+                    .duration(250)
+                    .style("font", "bold "+ (nodeFontSize+4) +"px Arial")
+                    .attr("fill", "Blue");
+
+                var legendBulletSelector = "." + "legendBullet-" + strippedTypeValue;
+                var selectedBullet = d3.selectAll(legendBulletSelector);
+                //document.writeln(legendBulletSelector);
+                selectedBullet.style("fill", "Maroon");
+                selectedBullet.attr("r", 1.2 * 6);
+
+                var legendTextSelector = "." + "legendText-" + strippedTypeValue;
+                var selectedLegendText = d3.selectAll(legendTextSelector);
+                //document.writeln(legendBulletSelector);
+                selectedLegendText.style("font", "bold "+legendFontSize+"px Arial")
+                selectedLegendText.style("fill", "Maroon");
+
+
+                //Show details 
+                var details_div = document.getElementById('details_div');
+                $("<p />", {text: d3.select(this).select("circle")[0][0]["__data__"].description,id: 'details'}).appendTo(details_div);
+
+            }
+
+            var nodeMouseOut = function() {
+                var thisObject = d3.select(this);
+                var typeValue = thisObject.attr("type_value");
+                var colorValue = thisObject.attr("color_value");
+                var strippedTypeValue = typeValue.replace(/ /g, "_");
+
+                d3.select(this).select("circle").transition()
+                    .duration(250)
+                    .attr("r", function(d, i) {
+                        if (d.id == focalNodeID) {
+                            return centerNodeSize;
+                        } else {
+                            return nodeSize;
+                        }
+                    });
+                d3.select(this).select("text").transition()
+                    .duration(250)
+                    .style("font", "normal "+nodeFontSize+"px Arial")
+                    .attr("fill", "Blue");
+
+                var legendBulletSelector = "." + "legendBullet-" + strippedTypeValue;
+                var selectedBullet = d3.selectAll(legendBulletSelector);
+                //document.writeln(legendBulletSelector);
+                selectedBullet.style("fill", colorValue);
+                selectedBullet.attr("r", 6);
+
+                var legendTextSelector = "." + "legendText-" + strippedTypeValue;
+                var selectedLegendText = d3.selectAll(legendTextSelector);
+                //document.writeln(legendBulletSelector);
+                selectedLegendText.style("font", "normal "+legendFontSize+"px Arial")
+                selectedLegendText.style("fill", "Black");
+
+                //Remove details
+                var details = document.getElementById('details');
+                details.remove();
+
+            }
+
+            // Create a hash that maps colors to types...
+            nodeSet.forEach(function(d, i) {
+                color_hash[d.type] = d.type;
+                // document.writeln(color_hash['jan']);
+            });
+
+            function keys(obj) {
+                var keys = [];
+
+                for (var key in obj) {
+                    if (obj.hasOwnProperty(key)) {
+                        keys.push(key);
+                    }
+                }
+                return keys;
+            }
+
+            var sortedKeys = keys(color_hash).sort();
+
+            sortedKeys.forEach(function(d, i) {
+                color_hash[d] = colorScale(i);
+                //document.writeln(color_hash[d]);
+            });
+
+            // Add colors to original node records...
+            nodeSet.forEach(function(d, i) {
+                d.color = color_hash[d.type];
+                //document.writeln(d.type);
+            });
+
+            // Create a canvas...
+            var svgCanvas = d3.select(selectString)
+                .append("svg:svg")
+                .attr("width", width)
+                .attr("height", height)
+                .append("svg:g")
+                .attr("class", "focalNodeCanvas")
+                .attr("transform", "translate(" + width /3  + "," + height /2.2 + ")")
+
+            var node_hash = [];
+            var type_hash = [];
+
+            // Create a hash that allows access to each node by its id
+            nodeSet.forEach(function(d, i) {
+                node_hash[d.id] = d;
+                type_hash[d.type] = d.type;
+            });
+
+            // Append the source object node and the target object node to each link records...
+            linkSet.forEach(function(d, i) {
+                d.source = node_hash[d.sourceId];
+                d.target = node_hash[d.targetId];
+                if (d.sourceId == focalNodeID) {
+                    d.direction = "OUT";
+                } else {
+                    d.direction = "IN";
+                }
+            });
+
+            // Create a force layout and bind Nodes and Links
+            var force = d3.layout.force()
+                .nodes(nodeSet)
+                .links(linkSet)
+                .charge(-1)
+                .gravity(.01)
+                .friction(.2)
+                .linkStrength(1)
+                .size([width/8, height/10])
+                .linkDistance(function(d) {
+                    if (width < height) {
+                        return width * 1 / 3;
+                    } else {
+                        return height * 1 / 2
+                    }
+                }) // Controls edge length
+                // .linkDistance( 200 ) // Controls edge length
+                .on("tick", tick)
+                .start();
+
+            // Draw lines for Links between Nodes
+            var link = svgCanvas.selectAll(".gLink")
+                .data(force.links())
+                .enter().append("g")
+                .attr("class", "gLink")
+
+            .append("line")
+                .attr("class", "link")
+                .style("stroke", "#ccc")
+                .attr("x1", function(d) {
+                    return d.source.x;
+                })
+                .attr("y1", function(d) {
+                    return d.source.y;
+                })
+                .attr("x2", function(d) {
+                    return d.target.x;
+                })
+                .attr("y2", function(d) {
+                    return d.target.y;
+                })
+                .attr("marker-end", "url(#arrowhead)");
+
+
+            svgCanvas.append('defs').append('marker')
+                .attr({
+                    'id': 'arrowhead',
+                    'viewBox': '-0 -5 10 10',
+                    'refX': 25,
+                    'refY': 0,
+                    //'markerUnits':'strokeWidth',
+                    'orient': 'auto',
+                    'markerWidth': 10,
+                    'markerHeight': 10,
+                    'xoverflow': 'visible'
+                })
+                .append('svg:path')
+                .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
+                .attr('fill', '#ccc')
+                .attr('stroke', '#ccc');
+
+            // Create Nodes
+            var node = svgCanvas.selectAll(".node")
+                .data(force.nodes())
+                .enter().append("g")
+                .attr("class", "node")
+                .attr("type_value", function(d, i) {
+                    return d.type;
+                })
+                .attr("color_value", function(d, i) {
+                    return color_hash[d.type];
+                })
+                //.attr("fixed", function(d) { if (d.id==focalNodeID) { return true; } else { return false; } } )
+                .on("mouseover", nodeMouseOver)
+                .on("mouseout", nodeMouseOut)
+                .call(force.drag)
+                .append("a")
+                .attr("xlink:href", function(d) {
+                    return d.hlink;
+                });
+
+            // Append circles to Nodes
+            node.append("circle")
+                //.attr("x", function(d) { return d.x; })
+                //.attr("y", function(d) { return d.y; })
+                .attr("r", function(d) {
+                    if (d.id == focalNodeID) {
+                        return centerNodeSize;
+                    } else {
+                        return nodeSize;
+                    }
+                })
+                .style("fill", "White") // Make the nodes hollow looking
+                .attr("type_value", function(d, i) {
+                    return d.type;
+                })
+                .attr("color_value", function(d, i) {
+                    return color_hash[d.type];
+                })
+                //.attr("fixed", function(d) { if (d.id==focalNodeID) { return true; } else { return false; } } )
+                //.attr("x", function(d) { if (d.id==focalNodeID) { return width/2; } else { return d.x; } })
+                //.attr("y", function(d) { if (d.id==focalNodeID) { return height/2; } else { return d.y; } })
+                .attr("class", function(d, i) {
+                    var str = d.type;
+                    var strippedString = str.replace(/ /g, "_")
+                        //return "nodeCircle-" + strippedString; })
+                    if (d.id == focalNodeID) {
+                        return "focalNodeCircle";
+                    } else {
+                        return "nodeCircle-" + strippedString;
+                    }
+                })
+                .style("stroke-width", 5) // Give the node strokes some thickness
+                .style("stroke", function(d, i) {
+                    // return 'gray';
+                    return color_hash[d.type]; //NODE COLOR
+                }) // Node stroke colors
+                .call(force.drag);
+
+            // Append text to Nodes
+            node.append("text")
+                .attr("x", function(d) {
+                    if (d.id == focalNodeID) {
+                        return 0;
+                    } else {
+                        return 20;
+                    }
+                })
+                .attr("y", function(d) {
+                    if (d.id == focalNodeID) {
+                        return 0;
+                    } else {
+                        return -10;
+                    }
+                })
+                .attr("text-anchor", function(d) {
+                    if (d.id == focalNodeID) {
+                        return "middle";
+                    } else {
+                        return "start";
+                    }
+                })
+                .attr("font-family", "Arial, Helvetica, sans-serif")
+                .style("font", "normal "+nodeFontSize+"px Arial") //FONT NODE
+                .attr("fill", "Blue")
+                .style("fill", function(d, i) {
+                    return color_hash[d];
+                })
+                .attr("type_value", function(d, i) {
+                    return d.type;
+                })
+                .attr("color_value", function(d, i) {
+                    return color_hash[d.type];
+                })
+                .attr("class", function(d, i) {
+                    var str = d.type;
+                    var strippedString = str.replace(/ /g, "_");
+                    //return "nodeText-" + strippedString; })
+                    if (d.id == focalNodeID) {
+                        return "focalNodeText";
+                    } else {
+                        return "nodeText-" + strippedString;
+                    }
+                })
+                .attr("dy", ".35em")
+                .text(function(d) {
+                    return d.name;
+                });
+
+            // Append text to Link edges
+            var linkText = svgCanvas.selectAll(".gLink")
+                .data(force.links())
+                .append("text")
+                .attr("font-family", "Arial, Helvetica, sans-serif")
+                .attr("x", function(d) {
+                    if (d.target.x > d.source.x) {
+                        return (d.source.x + (d.target.x - d.source.x) / 2);
+                    } else {
+                        return (d.target.x + (d.source.x - d.target.x) / 2);
+                    }
+                })
+                .attr("y", function(d) {
+                    if (d.target.y > d.source.y) {
+                        return (d.source.y + (d.target.y - d.source.y) / 2);
+                    } else {
+                        return (d.target.y + (d.source.y - d.target.y) / 2);
+                    }
+                })
+                .attr("fill", "Black")
+                .style("font", "normal "+connectionFontSize+"px Arial") //FONT CONNECTIONS
+                .attr("dy", ".35em")
+                .text(function(d) {
+                    return d.linkName;
+                });
+
+
+            function tick() {
+                link
+                    .attr("x1", function(d) {
+                        return d.source.x;
+                    })
+                    .attr("y1", function(d) {
+                        return d.source.y;
+                    })
+                    .attr("x2", function(d) {
+                        return d.target.x;
+                    })
+                    .attr("y2", function(d) {
+                        return d.target.y;
+                    });
+
+                node
+                    .attr("transform", function(d) {
+                        return "translate(" + d.x + "," + d.y + ")";
+                    });
+
+                linkText
+                    .attr("x", function(d) {
+                        if (d.target.x > d.source.x) {
+                            return (d.source.x + (d.target.x - d.source.x) / 2);
+                        } else {
+                            return (d.target.x + (d.source.x - d.target.x) / 2);
+                        }
+                    })
+                    .attr("y", function(d) {
+                        if (d.target.y > d.source.y) {
+                            return (d.source.y + (d.target.y - d.source.y) / 2);
+                        } else {
+                            return (d.target.y + (d.source.y - d.target.y) / 2);
+                        }
+                    });
+            }
+
+
+            //--------------------LEGEND-----------------------
+            var legendWidth = 250;
+            var legendHeight = 120;
+            var leftPanel = d3.select("#left_panel_legend").append("svg:svg")
+                .attr("width", legendWidth)
+                .attr("height", legendHeight)
+                .append("svg:g")
+                .attr("class", "focalNodeCanvas")
+                .attr("transform", "translate(" + legendWidth / 2 + "," + legendHeight / 2 + ")");
+            // Print Legend Title...
+            leftPanel.append("text").attr("class", "region")
+                .text("Legend")
+                .attr("x", -1 * (legendWidth / 2 - 10))
+                .attr("y", (-legendHeight / 7 * 2))
+                .style("fill", "Black")
+                .style("font", "bold "+ (legendFontSize+2) +"px Arial")
+                .attr("text-anchor", "start");
+
+            //Plot the bullet circles...
+            leftPanel.selectAll("focalNodeCanvas")
+                .data(sortedKeys).enter().append("svg:circle") // Append circle elements
+                .attr("cx", -1 * (legendWidth / 2 - 25))
+                .attr("cy", function(d, i) {
+                    return (i * 20 - legendHeight / 7 * 2 + 20);
+                })
+                .attr("stroke-width", ".5")
+                .style("fill", function(d, i) {
+                    return color_hash[d];
+                })
+                .attr("r", 6)
+                .attr("color_value", function(d, i) {
+                    return color_hash[d];
+                })
+                .attr("type_value", function(d, i) {
+                    return d;
+                })
+                .attr("index_value", function(d, i) {
+                    return "index-" + i;
+                })
+                .attr("class", function(d) {
+                    var str = d;
+                    var strippedString = str.replace(/ /g, "_")
+                    return "legendBullet-" + strippedString;
+                })
+                .on('mouseover', typeMouseOver)
+                .on("mouseout", typeMouseOut);
+
+            //Create legend text that acts as label keys...
+            leftPanel.selectAll("a.legend_link")
+                .data(sortedKeys) // Instruct to bind dataSet to text elements
+                .enter().append("svg:a") // Append legend elements
+                .append("text")
+                .attr("text-anchor", "center")
+                .attr("x", -1 * (legendWidth / 2 - 40))
+                .attr("y", function(d, i) {
+                    return (i * 20 - legendHeight / 7 * 2 + 20);
+                })
+                .attr("dx", 0)
+                .attr("dy", "4px") // Controls padding to place text in alignment with bullets
+                .text(function(d) {
+                    return d;
+                })
+                .attr("color_value", function(d, i) {
+                    return color_hash[d];
+                })
+                .attr("type_value", function(d, i) {
+                    return d;
+                })
+                .attr("index_value", function(d, i) {
+                    return "index-" + i;
+                })
+                .attr("class", function(d) {
+                    var str = d;
+                    var strippedString = str.replace(/ /g, "_")
+                    return "legendText-" + strippedString;
+                })
+                .style("fill", "Black")
+                .style("font", "normal "+legendFontSize+"px Arial")
+                .on('mouseover', typeMouseOver)
+                .on("mouseout", typeMouseOut);
+
+            svgCanvas.append('defs').append('marker')
+            .attr({
+                'id': 'arrowhead',
+                'viewBox': '-0 -5 10 10',
+                'refX': 25,
+                'refY': 0,
+                'orient': 'auto',
+                'markerWidth': 10,
+                'markerHeight': 10,
+                'xoverflow': 'visible'
+            })
+
+        };
+
+        
+    </script>
+
+
+    <style type="text/css">
+        svg {
+            font: 10px sans-serif;
+            display: block;
+        }
+    </style>
+
+
+    <STYLE type="text/css">
+        div.div_Header {
+            width: 100%;
+            border: 2px solid White;
+            border-radius: 7px;
+            background: WhiteSmoke;
+            font: bold 14px Arial;
+            font-family: Arial, Helvetica, sans-serif;
+            color: WhiteSmoke;
+            text-align: center;
+        }
+        
+        h1.h1_BodyHeader {
+            text-align: center;
+            font: bold 1.5em Arial;
+        }
+        
+        h2.h2_LeftMenuHeader {
+            text-align: center;
+            font: bold 1.2em Arial;
+
+
+        }
+        
+        h3.h3_Body {
+            text-align: center;
+        }
+        
+        p.p_Red {
+            color: Red;
+        }
+        
+        table.table_Header {
+            width: 100%;
+            text-align: center;
+        }
+        
+        td.td_HeaderLeft {
+            text-align: left;
+        }
+        
+        td.td_HeaderRight {
+            text-align: right;
+        }
+        
+        div.div_Menu {
+            width: 100%;
+            border: 2px solid White;
+            border-radius: 7px;
+            background: MidnightBlue;
+            font: bold 14px Arial;
+            font-family: Arial, Helvetica, sans-serif;
+            color: White;
+            text-align: center;
+        }
+        
+        div.p_Left {
+            font-family: Arial, Helvetica, sans-serif;
+            color: Black;
+            text-align: left;
+            padding-left: 5px;
+            font: normal 18px Arial;
+        }
+        
+        table.table_Body {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+        }
+        
+        td.td_BodyLeft {
+            vertical-align: top;
+            position: fixed;
+            top: 170px;
+            width: 250px;
+            height: 50px;
+            padding: 0;
+        }
+        
+        td.td_BodyRight {
+            vertical-align: top;
+            position: fixed;
+            /*height: 100%;*/
+        }
+        
+        li.li_LeftMenu {
+            text-align: left;
+            font: normal 14px Arial;
+        }
+        
+        a.a_LeftMenuNoUnderLine {
+            text-decoration: none;
+        }
+        
+        div.div_Body {
+            height: 100%;
+            width: 100%;
+            position: relative;
+            border: 2px solid White;
+            border-radius: 7px;
+            background: WhiteSmoke;
+            font: bold 14px Arial;
+            font-family: Arial, Helvetica, sans-serif;
+            color: Black;
+            text-align: center;
+        }
+
+        div.div_Header{
+            position: fixed;
+            height: 150px;
+            width: 100%;
+            border: 2px solid White;
+            border-radius: 7px;
+            background: WhiteSmoke;
+            font: bold 14px Arial;
+            font-family: Arial, Helvetica, sans-serif;
+            color: Black;
+            text-align: center;
+        }
+
+        div.div_RootBody {
+            position: fixed;
+            top: 170px;
+            left: 280px;
+            height: 100%;
+            width: 100%;
+        }
+
+        .chart{
+            /*position: relative;*/
+            height: 100%;
+            width: 100%;
+            overflow-y: scroll;
+            background: WhiteSmoke;
+            border: 2px solid White;
+            border-radius: 7px;
+            font-family: Arial, Helvetica, sans-serif;
+            color: Black;
+            text-align: left;
+        }
+
+
+    </STYLE>
+
+
+    <!--[if gt IE 7]>
+      <style>body { overflow-y:scroll; } </style>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <div class="div_Header" >
+        <div align="middle">
+            <img src="http://ltwp.net/networks/images/graph.png" width=100>
+        </div>
+        <h1 style="text-align:center; font: bold 1.5em Arial;"> Graph </h1>
+    </div>
+    <table class="table_Body">
+        <tr>
+            <td class="td_BodyLeft" >
+                <div id="left_panel_legend"></div>
+
+                <div class="div_Body" >
+                    <h2 class="h2_LeftMenuHeader">Node Details</h2>
+                        <!-- <p class="p_Left">This is dummy paragraph 1 text that would go in this section of the page.</p> -->
+                </div>
+
+                <div class="p_Left"  id="details_div"></div>
+            </td>
+            <td class="td_BodyRight">
+                <div class="div_RootBody" id="cluster_chart">
+                    <div id="chart_id" class="chart"></div>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <script type="text/javascript">
+        drawCluster("Drawing 1", focalNodeID, nodeSet, linkSet, "#cluster_chart .chart", "colorScale20");
+    </script>
+
+</body>
+
+</html>
