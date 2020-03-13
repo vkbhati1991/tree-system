@@ -406,6 +406,8 @@
         .force("link", d3.forceLink(graph.links).id(function (d) { return d.nodeId; }).distance(40).strength(1))
         .on("tick", ticked);
 
+        console.log(graphLayout)
+
     var adjlist = [];
 
     graph.links.forEach(function (d) {
@@ -599,7 +601,7 @@
         tooltip.attr("display", function (o) {
             return d.nodeId == o.nodeId ? "block" : "none";
         });
-        console.log(d);
+        
     }
 
     function unfocus() {
